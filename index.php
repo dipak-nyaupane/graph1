@@ -110,6 +110,7 @@
                 }
             });
         }
+        
 
         $('#daterange_textbox').daterangepicker({
             ranges: {
