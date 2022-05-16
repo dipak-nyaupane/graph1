@@ -1,3 +1,22 @@
+<?php 
+
+//index.php
+
+$connect = new PDO("mysql:host=localhost;dbname=erp_hrm", "root", "");
+
+$query = "SELECT a.branch_code,b.edesc FROM hr_employee_setup a,branch_code b WHERE a.branch_code=b.code GROUP BY a.branch_code ASC";
+
+$statement = $connect->prepare($query);
+
+$statement->execute();
+
+$result = $statement->fetchAll();
+
+?>  
+
+
+
+
 <!doctype html>
 <html lang="en">
 
@@ -24,14 +43,28 @@
 <body>
 
     <div class="container-fluid">
-        <h1 class="mt-2 mb-3 text-center text-primary">Final Try </h1>
+        <h1 class="mt-2 mb-3 text-center text-primary">Attendance Graph</h1>
         <div class="card">
             <div class="card-header">
                 <div class="row">
-                    <div class="col col-sm-9">Attendance Data</div>
+                    <div class="col col-sm-9">Attendance Data In Graph Format</div>
                     <div class="col col-sm-3">
                         <input type="text" id="daterange_textbox" class="form-control" readonly />
-                    </div>
+                        <select name="branch_code" class="form-control" id="branch_code">
+                                <option value="">Selcect Branch Code</option>
+                    
+                                <?php   foreach($result as $row)
+
+                            {
+                               echo '<option value="'.$row["branch_code"].'">'.$row["edesc"].'</option>';
+                               
+
+                           }
+                       ?>
+           </select>
+                </div>
+
+                   
                 </div>
             </div>
             <div class="card-body">

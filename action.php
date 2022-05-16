@@ -21,17 +21,20 @@ if(isset($_POST["action"]))
 		{
 			$search_query .= 'order_date >= "'.$_POST["start_date"].'" AND order_date <= "'.$_POST["end_date"].'" AND ';
 		}
-
+		if(isset($_POST["branch_code"]["value"]))
+		{
+			$branch_code .='(branch_code LIKE "%'.$_POST["branch_code"]["value"].'%" AND)';
+		}
 		if(isset($_POST["search"]["value"]))
 		{
-			$search_query .= '(order_number LIKE "%'.$_POST["search"]["value"].'%" OR order_total LIKE "%'.$_POST["search"]["value"].'%" OR order_date LIKE "%'.$_POST["search"]["value"].'%")';
+			$search_query .= '(order_number LIKE "%'.$_POST["search"]["value"].'%" OR order_total LIKE "%'.$_POST["search"]["value"].'%" OR order_date LIKE "%'.$_POST["search"]["value"].'%")' ;
 		}
-
-
-
+    
+		$order_by_query = "";
+	
 		$group_by_query = " GROUP BY order_date ";
 
-		$order_by_query = "";
+		
 
 		if(isset($_POST["order"]))
 		{
@@ -48,8 +51,9 @@ if(isset($_POST["action"]))
 		{
 			$limit_query = 'LIMIT ' . $_POST['start'] . ', ' . $_POST['length'];
 		}
-
-		$statement = $connect->prepare($main_query . $search_query . $group_by_query . $order_by_query);
+       
+		$branch_code='';
+		$statement = $connect->prepare($main_query . $search_query .$branch_code. $group_by_query . $order_by_query);
 
 		$statement->execute();
 
