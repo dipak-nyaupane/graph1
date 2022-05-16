@@ -12,7 +12,7 @@ $statement->execute();
 
 $result = $statement->fetchAll();
 
-?>  
+?>
 
 
 
@@ -51,9 +51,9 @@ $result = $statement->fetchAll();
                     <div class="col col-sm-3">
                         <input type="text" id="daterange_textbox" class="form-control" readonly />
                         <select name="branch_code" class="form-control" id="branch_code">
-                                <option value="">Selcect Branch Code</option>
-                    
-                                <?php   foreach($result as $row)
+                            <option value="">Selcect Branch Code</option>
+
+                            <?php   foreach($result as $row)
 
                             {
                                echo '<option value="'.$row["branch_code"].'">'.$row["edesc"].'</option>';
@@ -61,10 +61,10 @@ $result = $statement->fetchAll();
 
                            }
                        ?>
-           </select>
-                </div>
+                        </select>
+                    </div>
 
-                   
+
                 </div>
             </div>
             <div class="card-body">
@@ -91,79 +91,83 @@ $result = $statement->fetchAll();
 </html>
 
 <script>
-    $(document).ready(function() {
+$(document).ready(function() {
 
-        fetch_data();
+    fetch_data();
 
-        var sale_chart;
+    var sale_chart;
 
-        function fetch_data(start_date = '', end_date = '') {
-            var dataTable = $('#order_table').DataTable({
-                "processing": true,
-                "serverSide": true,
-                //"order": [],
-                "ajax": {
-                    url: "action.php",
-                    type: "POST",
-                    data: {
-                        action: 'fetch',
-                        start_date: start_date,
-                        end_date: end_date
-                    }
-                },
-                "drawCallback": function(settings) {
-                    var sales_date = [];
-                    var sale = [];
-
-                    for (var count = 0; count < settings.aoData.length; count++) {
-                        sales_date.push(settings.aoData[count]._aData[2]);
-                        sale.push(parseFloat(settings.aoData[count]._aData[1]));
-                    }
-
-                    var chart_data = {
-                        labels: sales_date,
-                        datasets: [{
-                            label: 'Attendance',
-                            backgroundColor: 'rgb(50, 200, 22)',
-                            color: '#fff',
-                            data: sale
-                        }]
-                    };
-
-                    var group_chart3 = $('#bar_chart');
-
-                    if (sale_chart) {
-                        sale_chart.destroy();
-                    }
-
-                    sale_chart = new Chart(group_chart3, {
-                        type: 'bar',
-                        data: chart_data
-                    });
+    function fetch_data(start_date = '', end_date = '',branch_code='') {
+        var dataTable = $('#order_table').DataTable({
+            "processing": true,
+            "serverSide": true,
+            //"order": [],
+            "ajax": {
+                url: "action.php",
+                type: "POST",
+                data: {
+                    action: 'fetch',
+                    start_date: start_date,
+                    end_date: end_date,
+                    branch_code:branch_code
                 }
-            });
-        }
-        
-
-        $('#daterange_textbox').daterangepicker({
-            ranges: {
-                'Today': [moment(), moment()],
-                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                'This Month': [moment().startOf('month'), moment().endOf('month')],
-                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month')
-                    .endOf('month')
-                ]
             },
-            format: 'YYYY-MM-DD'
-        }, function(start, end) {
+            "drawCallback": function(settings) {
+                var sales_date = [];
+                var sale = [];
 
-            $('#order_table').DataTable().destroy();
+                for (var count = 0; count < settings.aoData.length; count++) {
+                    sales_date.push(settings.aoData[count]._aData[2]);
+                    sale.push(parseFloat(settings.aoData[count]._aData[1]));
+                }
 
-            fetch_data(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+                var chart_data = {
+                    labels: sales_date,
+                    datasets: [{
+                        label: 'Attendance',
+                        backgroundColor: 'rgb(50, 200, 22)',
+                        color: '#fff',
+                        data: sale
+                    }]
+                };
 
+                var group_chart3 = $('#bar_chart');
+
+                if (sale_chart) {
+                    sale_chart.destroy();
+                }
+
+                sale_chart = new Chart(group_chart3, {
+                    type: 'bar',
+                    data: chart_data
+                });
+            }
         });
+    }
+
+
+    $('#daterange_textbox').daterangepicker({
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month')
+                .endOf('month')
+            ]
+        },
+        format: 'YYYY-MM-DD'
+    }, function(start, end) {
+
+        $('#order_table').DataTable().destroy();
+
+        fetch_data(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+        //fetch_data(branch_code);
 
     });
+
+   
+
+});
 </script>
