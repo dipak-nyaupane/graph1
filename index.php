@@ -1,22 +1,12 @@
 <?php 
 
 //index.php
-
 $connect = new PDO("mysql:host=localhost;dbname=erp_hrm", "root", "");
-
 $query = "SELECT a.branch_code,b.edesc FROM hr_employee_setup a,branch_code b WHERE a.branch_code=b.code GROUP BY a.branch_code ASC";
-
 $statement = $connect->prepare($query);
-
 $statement->execute();
-
 $result = $statement->fetchAll();
-
 ?>
-
-
-
-
 <!doctype html>
 <html lang="en">
 
@@ -36,21 +26,21 @@ $result = $statement->fetchAll();
     <script src="library/Chart.bundle.min.js"></script>
     <script src="library/jquery.dataTables.min.js"></script>
     <script src="library/dataTables.bootstrap5.min.js"></script>
-
-
+   
 </head>
 
 <body>
-
-    <div class="container-fluid">
+<div class="container-fluid">
         <h1 class="mt-2 mb-3 text-center text-primary">Attendance Graph</h1>
         <div class="card">
             <div class="card-header">
                 <div class="row">
-                    <div class="col col-sm-9">Attendance Data In Graph Format</div>
+                    <div class="col col-sm-6">Attendance Data In Graph Format</div>
                     <div class="col col-sm-3">
                         <input type="text" id="daterange_textbox" class="form-control" readonly />
-                        <select name="branch_code" class="form-control" id="branch_code">
+                    </div>
+                    <div class="col col-sm-3">
+                        <select  class="form-control" id="single_branch_code" name="branch_code" readonly />
                             <option value="">Selcect Branch Code</option>
 
                             <?php   foreach($result as $row)
@@ -58,7 +48,6 @@ $result = $statement->fetchAll();
                             {
                                echo '<option value="'.$row["branch_code"].'">'.$row["edesc"].'</option>';
                                
-
                            }
                        ?>
                         </select>
@@ -78,6 +67,7 @@ $result = $statement->fetchAll();
                                 <th>Employee Name</th>
                                 <th>present Day</th>
                                 <th>Present Date</th>
+                                <th>Branch</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -92,12 +82,9 @@ $result = $statement->fetchAll();
 
 <script>
 $(document).ready(function() {
-
     fetch_data();
-
     var sale_chart;
-
-    function fetch_data(start_date = '', end_date = '',branch_code='') {
+    function fetch_data(start_date = '', end_date = '', branch_code='' ) {
         var dataTable = $('#order_table').DataTable({
             "processing": true,
             "serverSide": true,
@@ -107,22 +94,23 @@ $(document).ready(function() {
                 type: "POST",
                 data: {
                     action: 'fetch',
+                    branch_code:branch_code,
                     start_date: start_date,
-                    end_date: end_date,
-                    branch_code:branch_code
+                    end_date: end_date
+                   
+                 
                 }
             },
+           
             "drawCallback": function(settings) {
-                var sales_date = [];
+                var employee_name = [];
                 var sale = [];
-
                 for (var count = 0; count < settings.aoData.length; count++) {
-                    sales_date.push(settings.aoData[count]._aData[2]);
+                    employee_name.push(settings.aoData[count]._aData[0]);
                     sale.push(parseFloat(settings.aoData[count]._aData[1]));
                 }
-
                 var chart_data = {
-                    labels: sales_date,
+                    labels: employee_name,
                     datasets: [{
                         label: 'Attendance',
                         backgroundColor: 'rgb(50, 200, 22)',
@@ -144,8 +132,6 @@ $(document).ready(function() {
             }
         });
     }
-
-
     $('#daterange_textbox').daterangepicker({
         ranges: {
             'Today': [moment(), moment()],
@@ -158,16 +144,43 @@ $(document).ready(function() {
             ]
         },
         format: 'YYYY-MM-DD'
-    }, function(start, end) {
+    }, 
+    
+    function(start, end) {
 
         $('#order_table').DataTable().destroy();
 
         fetch_data(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
         //fetch_data(branch_code);
-
+        console.log(start,end);
     });
 
-   
+$('#single_branch_code').change(function(){
+},function(branch_code){
+    var branch_code = $(this).val();
+    if(branch_code != '')
+  {
+    $('#order_table').DataTable().destroy();
 
+      fetch_data(branch_code, '');
+      //console.log(branch_code);
+  }
+   
+  });
+  
 });
+
+
+
+    
+
+    
+
+
+
+       
+
+
+
+
 </script>
